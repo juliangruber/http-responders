@@ -32,11 +32,11 @@ $ npm install http-responders
 
 ### .redirect(req, res, location)
 
-### .stream(res, stream)
+### await .stream(res, stream)
 
-### .file(res, path, [fsOpts])
+### await .file(res, path, [fsOpts])
 
-### .download(res, path, [fsOpts])
+### await .download(res, path, [fsOpts])
 
 ## Kudos
 

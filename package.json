@@ -1,6 +1,6 @@
 {
   "name": "http-responders",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "description": "Zero-dependency http responders",
   "repository": "juliangruber/http-responders",

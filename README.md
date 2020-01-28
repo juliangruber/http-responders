@@ -13,10 +13,25 @@ Supports:
 ## Example
 
 ```js
-const { json } = require('http-responders')
+const { json, redirect, stream, file, download } = require('http-responders')
 
 http.createServer((req, res) => {
+
+  // Respond with JSON
   json(res, { beep: 'boop' })
+
+  // Redirect
+  redirect(req, res, 'https://example.com/')
+
+  // Respond with a generic stream
+  stream(res, fs.createReadStream('file.txt'))
+
+  // Respond with a file (+ content length)
+  file(res, 'file.txt')
+
+  // Make the browser download the file
+  download(res, 'file.txt)
+
 })
 ```
 

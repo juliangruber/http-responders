@@ -29,9 +29,13 @@ $ npm install http-responders
 ## API
 
 ### .json(res, json)
+
 ### .redirect(req, res, location)
+
 ### .stream(res, stream)
+
 ### .file(res, path, [fsOpts])
+
 ### .download(res, path, [fsOpts])
 
 ## Kudos

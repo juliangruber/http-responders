@@ -53,7 +53,7 @@ $ npm install http-responders
 
 ### await .download(res, path, [fsOpts])
 
-## Kudos
+## Sponsors
 
 Development of this module is sponsored by:
 

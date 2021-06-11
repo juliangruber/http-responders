@@ -13,9 +13,9 @@ Supports:
 ## Example
 
 ```js
-const { json, redirect, stream, file, download } = require('http-responders')
+import { json, redirect, stream, file, download } from 'http-responders'
 
-http.createServer((req, res) => {
+http.createServer(async (req, res) => {
 
   // Respond with JSON
   json(res, { beep: 'boop' })
@@ -24,13 +24,13 @@ http.createServer((req, res) => {
   redirect(req, res, 'https://example.com/')
 
   // Respond with a generic stream
-  stream(res, fs.createReadStream('file.txt'))
+  await stream(res, fs.createReadStream('file.txt'))
 
   // Respond with a file (+ content length)
-  file(res, 'file.txt')
+  await file(res, 'file.txt')
 
   // Make the browser download the file
-  download(res, 'file.txt)
+  await download(res, 'file.txt)
 
 })
 ```
@@ -52,12 +52,6 @@ $ npm install http-responders
 ### await .file(res, path, [fsOpts])
 
 ### await .download(res, path, [fsOpts])
-
-## Sponsors
-
-Development of this module is sponsored by:
-
-![Liberate Science](https://libscie.org/assets/images/image01.png?v33093812210851)
 
 ## License
 

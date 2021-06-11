@@ -1,36 +1,53 @@
-'use strict'
+import { test } from 'tap'
+import http from 'http'
+import { json, redirect, download, file, stream } from './index.js'
+import fs from 'fs'
+import fetch from 'node-fetch'
+import { Readable } from 'stream'
+import AbortController from 'abort-controller'
+import { fileURLToPath } from 'url'
 
-const { test } = require('tap')
-const http = require('http')
-const { json, redirect, download, file, stream } = require('.')
-const fs = require('fs')
-const fetch = require('node-fetch')
-const { Readable } = require('stream')
-const AbortController = require('abort-controller')
-
-const server = http.createServer((req, res) => {
-  if (req.url === '/json') {
-    json(res, { beep: 'boop' })
-  } else if (req.url === '/redirect') {
-    redirect(req, res, 'https://example.com/')
-  } else if (req.url === '/stream') {
-    stream(res, fs.createReadStream(__filename))
-  } else if (req.url === '/stream/error') {
-    stream(res, fs.createReadStream('bleep')).catch(() => res.end('caught'))
-  } else if (req.url === '/stream/close') {
-    const readable = new Readable()
-    readable._read = () => {
-      setTimeout(() => readable.push('hi'), 100)
+const server = http.createServer(async (req, res) => {
+  try {
+    if (req.url === '/json') {
+      json(res, { beep: 'boop' })
+    } else if (req.url === '/redirect') {
+      redirect(req, res, 'https://example.com/')
+    } else if (req.url === '/stream') {
+      await stream(res, fs.createReadStream(fileURLToPath(import.meta.url)))
+    } else if (req.url === '/stream/error') {
+      try {
+        await stream(res, fs.createReadStream('bleep'))
+      } catch (_) {
+        res.end('caught')
+      }
+    } else if (req.url === '/stream/close') {
+      const readable = new Readable()
+      readable._read = () => {
+        setTimeout(() => readable.push('hi'), 100)
+      }
+      await stream(res, readable)
+    } else if (req.url === '/file') {
+      await file(res, fileURLToPath(import.meta.url))
+    } else if (req.url === '/file/error') {
+      try {
+        await file(res, 'bleep')
+      } catch (_) {
+        res.end('caught')
+      }
+    } else if (req.url === '/download') {
+      await download(res, fileURLToPath(import.meta.url))
+    } else if (req.url === '/download/error') {
+      try {
+        await download(res, 'bleep')
+      } catch (_) {
+        res.end('caught')
+      }
     }
-    stream(res, readable)
-  } else if (req.url === '/file') {
-    file(res, __filename)
-  } else if (req.url === '/file/error') {
-    file(res, 'bleep').catch(() => res.end('caught'))
-  } else if (req.url === '/download') {
-    download(res, __filename)
-  } else if (req.url === '/download/error') {
-    download(res, 'bleep').catch(() => res.end('caught'))
+  } catch (err) {
+    console.error(err)
+    res.statusCode = 500
+    res.end()
   }
 })
 let address
@@ -46,7 +63,7 @@ test('json', async t => {
   const res = await fetch(`${address}/json`)
   t.equal(res.headers.get('Content-Type'), 'application/json')
   const body = await res.json()
-  t.deepEqual(body, { beep: 'boop' })
+  t.same(body, { beep: 'boop' })
 })
 
 test('redirect', async t => {
@@ -74,12 +91,12 @@ test('stream', async t => {
   await t.test('no error', async t => {
     const res = await fetch(`${address}/stream`)
     const body = await res.buffer()
-    t.deepEqual(body, await fs.promises.readFile(__filename))
+    t.same(body, await fs.promises.readFile(fileURLToPath(import.meta.url)))
   })
   await t.test('error', async t => {
     const res = await fetch(`${address}/stream/error`)
     const text = await res.text()
-    t.deepEqual(text, 'caught')
+    t.same(text, 'caught')
   })
   await t.test('close', async t => {
     const controller = new AbortController()
@@ -102,15 +119,15 @@ test('file', async t => {
     const res = await fetch(`${address}/file`)
     t.equal(
       res.headers.get('Content-Length'),
-      String((await fs.promises.stat(__filename)).size)
+      String((await fs.promises.stat(fileURLToPath(import.meta.url))).size)
     )
     const body = await res.buffer()
-    t.deepEqual(body, await fs.promises.readFile(__filename))
+    t.same(body, await fs.promises.readFile(fileURLToPath(import.meta.url)))
   })
   await t.test('error', async t => {
     const res = await fetch(`${address}/file/error`)
     const text = await res.text()
-    t.deepEqual(text, 'caught')
+    t.same(text, 'caught')
   })
 })
 
@@ -123,15 +140,15 @@ test('download', async t => {
     )
     t.equal(
       res.headers.get('Content-Length'),
-      String((await fs.promises.stat(__filename)).size)
+      String((await fs.promises.stat(fileURLToPath(import.meta.url))).size)
     )
     const body = await res.buffer()
-    t.deepEqual(body, await fs.promises.readFile(__filename))
+    t.same(body, await fs.promises.readFile(fileURLToPath(import.meta.url)))
   })
   await t.test('error', async t => {
     const res = await fetch(`${address}/download/error`)
     const text = await res.text()
-    t.deepEqual(text, 'caught')
+    t.same(text, 'caught')
   })
 })
 

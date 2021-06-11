@@ -4,6 +4,7 @@
   "license": "MIT",
   "description": "Zero-dependency http responders",
   "repository": "juliangruber/http-responders",
+  "type": "module",
   "scripts": {
     "release": "np",
     "test": "prettier-standard && standard && tap"
@@ -12,8 +13,8 @@
     "abort-controller": "^3.0.0",
     "node-fetch": "^2.6.0",
     "np": "^5.2.1",
-    "prettier-standard": "^16.1.0",
-    "standard": "^14.3.1",
-    "tap": "^14.10.6"
+    "prettier-standard": "^16.4.1",
+    "standard": "^16.0.3",
+    "tap": "^15.0.9"
   }
 }

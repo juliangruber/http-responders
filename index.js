@@ -1,7 +1,5 @@
 import fs from 'fs'
-import { promisify } from 'util'
 import { basename } from 'path'
-import { once } from 'events'
 
 export const json = (res, json) => {
   res.setHeader('content-type', 'application/json')
@@ -28,16 +26,9 @@ export const stream = async (res, stream) => {
 }
 
 export const file = async (res, path, opts) => {
-  const readStream = fs.createReadStream(path, opts)
-  const stats = await Promise.race([
-    (async () => {
-      const [fd] = await once(readStream, 'open')
-      return promisify(fs.fstat)(fd)
-    })(),
-    once(readStream, 'error')
-  ])
-  res.setHeader('content-length', stats.size)
-  await stream(res, readStream)
+  const stat = await fs.promises.stat(path)
+  res.setHeader('content-length', stat.size)
+  await stream(res, fs.createReadStream(path, opts))
 }
 
 export const download = async (res, path, opts) => {

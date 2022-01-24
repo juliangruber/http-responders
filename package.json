@@ -12,7 +12,7 @@
   "devDependencies": {
     "abort-controller": "^3.0.0",
     "node-fetch": "^3.1.1",
-    "np": "^5.2.1",
+    "np": "^7.6.0",
     "prettier-standard": "^16.4.1",
     "standard": "^16.0.3",
     "tap": "^15.0.9"

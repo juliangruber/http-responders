@@ -1,4 +1,5 @@
-import { test } from 'tap'
+import test from 'test'
+import assert from 'node:assert'
 import http from 'http'
 import { json, redirect, download, file, stream } from './index.js'
 import fs from 'fs'
@@ -6,6 +7,7 @@ import fetch from 'node-fetch'
 import { Readable } from 'stream'
 import AbortController from 'abort-controller'
 import { fileURLToPath } from 'url'
+import { promisify } from 'node:util'
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -52,18 +54,16 @@ const server = http.createServer(async (req, res) => {
 })
 let address
 
-test('setup', t => {
-  server.listen(() => {
-    address = `http://localhost:${server.address().port}`
-    t.end()
-  })
+test('setup', async t => {
+  await promisify(server.listen.bind(server))()
+  address = `http://localhost:${server.address().port}`
 })
 
 test('json', async t => {
   const res = await fetch(`${address}/json`)
-  t.equal(res.headers.get('Content-Type'), 'application/json')
+  assert.strictEqual(res.headers.get('Content-Type'), 'application/json')
   const body = await res.json()
-  t.same(body, { beep: 'boop' })
+  assert.deepStrictEqual(body, { beep: 'boop' })
 })
 
 test('redirect', async t => {
@@ -71,9 +71,9 @@ test('redirect', async t => {
     const res = await fetch(`${address}/redirect`, {
       redirect: 'manual'
     })
-    t.equal(res.headers.get('Location'), 'https://example.com/')
+    assert.strictEqual(res.headers.get('Location'), 'https://example.com/')
     const text = await res.text()
-    t.equal(text, '-> https://example.com/')
+    assert.strictEqual(text, '-> https://example.com/')
   })
 
   await t.test('HEAD', async t => {
@@ -81,9 +81,9 @@ test('redirect', async t => {
       method: 'HEAD',
       redirect: 'manual'
     })
-    t.equal(res.headers.get('Location'), 'https://example.com/')
+    assert.strictEqual(res.headers.get('Location'), 'https://example.com/')
     const text = await res.text()
-    t.equal(text, '')
+    assert.strictEqual(text, '')
   })
 })
 
@@ -91,12 +91,12 @@ test('stream', async t => {
   await t.test('no error', async t => {
     const res = await fetch(`${address}/stream`)
     const body = await res.buffer()
-    t.same(body, await fs.promises.readFile(fileURLToPath(import.meta.url)))
+    assert.deepStrictEqual(body, await fs.promises.readFile(fileURLToPath(import.meta.url)))
   })
   await t.test('error', async t => {
     const res = await fetch(`${address}/stream/error`)
     const text = await res.text()
-    t.same(text, 'caught')
+    assert.deepStrictEqual(text, 'caught')
   })
   await t.test('close', async t => {
     const controller = new AbortController()
@@ -110,49 +110,48 @@ test('stream', async t => {
     } catch (_err) {
       err = _err
     }
-    t.equal(err.name, 'AbortError')
+    assert.strictEqual(err.name, 'AbortError')
   })
 })
 
 test('file', async t => {
   await t.test('no error', async t => {
     const res = await fetch(`${address}/file`)
-    t.equal(
+    assert.strictEqual(
       res.headers.get('Content-Length'),
       String((await fs.promises.stat(fileURLToPath(import.meta.url))).size)
     )
     const body = await res.buffer()
-    t.same(body, await fs.promises.readFile(fileURLToPath(import.meta.url)))
+    assert.deepStrictEqual(body, await fs.promises.readFile(fileURLToPath(import.meta.url)))
   })
   await t.test('error', async t => {
     const res = await fetch(`${address}/file/error`)
     const text = await res.text()
-    t.same(text, 'caught')
+    assert.deepStrictEqual(text, 'caught')
   })
 })
 
 test('download', async t => {
   await t.test('no error', async t => {
     const res = await fetch(`${address}/download`)
-    t.equal(
+    assert.strictEqual(
       res.headers.get('Content-Disposition'),
       'attachment; filename="test.js"'
     )
-    t.equal(
+    assert.strictEqual(
       res.headers.get('Content-Length'),
       String((await fs.promises.stat(fileURLToPath(import.meta.url))).size)
     )
     const body = await res.buffer()
-    t.same(body, await fs.promises.readFile(fileURLToPath(import.meta.url)))
+    assert.deepStrictEqual(body, await fs.promises.readFile(fileURLToPath(import.meta.url)))
   })
   await t.test('error', async t => {
     const res = await fetch(`${address}/download/error`)
     const text = await res.text()
-    t.same(text, 'caught')
+    assert.deepStrictEqual(text, 'caught')
   })
 })
 
-test('cleanup', t => {
+test('cleanup', async t => {
   server.close()
-  t.end()
 })

@@ -7,13 +7,13 @@
   "type": "module",
   "scripts": {
     "release": "np",
-    "test": "standard --fix && tap"
+    "test": "standard --fix && node--test"
   },
   "devDependencies": {
     "abort-controller": "^3.0.0",
     "node-fetch": "^3.1.1",
     "np": "^7.6.0",
     "standard": "^16.0.4",
-    "tap": "^15.1.6"
+    "test": "^3.2.1"
   }
 }

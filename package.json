@@ -5,6 +5,7 @@
   "description": "Zero-dependency http responders",
   "repository": "juliangruber/http-responders",
   "type": "module",
+  "main": "index.js",
   "scripts": {
     "release": "np",
     "test": "standard --fix && node--test"

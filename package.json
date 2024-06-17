@@ -13,7 +13,7 @@
   "devDependencies": {
     "abort-controller": "^3.0.0",
     "node-fetch": "^3.1.1",
-    "np": "^7.6.0",
+    "np": "^10.0.5",
     "standard": "^16.0.4",
     "test": "^3.2.1"
   }

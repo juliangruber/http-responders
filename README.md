@@ -4,6 +4,7 @@ Zero-dependency HTTP response functions.
 
 Supports:
 
+- `status`
 - `json`
 - `redirect`
 - `stream`
@@ -13,9 +14,12 @@ Supports:
 ## Example
 
 ```js
-import { json, redirect, stream, file, download } from 'http-responders'
+import { status, json, redirect, stream, file, download } from 'http-responders'
 
 http.createServer(async (req, res) => {
+
+  // Respond with HTTP Status
+  status(res, 404)
 
   // Respond with JSON
   json(res, { beep: 'boop' })
@@ -42,6 +46,8 @@ $ npm install http-responders
 ```
 
 ## API
+
+### .status(res, code)
 
 ### .json(res, json)
 

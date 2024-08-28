@@ -1,5 +1,11 @@
 import fs from 'fs'
 import { basename } from 'path'
+import { STATUS_CODES } from 'http'
+
+export const status = (res, code) => {
+  res.statusCode = code
+  res.end(STATUS_CODES[code])
+}
 
 export const json = (res, json) => {
   res.setHeader('content-type', 'application/json')

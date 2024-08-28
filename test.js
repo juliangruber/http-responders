@@ -1,7 +1,7 @@
 import test from 'test'
 import assert from 'node:assert'
 import http from 'http'
-import { json, redirect, download, file, stream } from './index.js'
+import { status, json, redirect, download, file, stream } from './index.js'
 import fs from 'fs'
 import fetch from 'node-fetch'
 import { Readable } from 'stream'
@@ -11,7 +11,9 @@ import { promisify } from 'node:util'
 
 const server = http.createServer(async (req, res) => {
   try {
-    if (req.url === '/json') {
+    if (req.url === '/status') {
+      status(res, 404)
+    } else if (req.url === '/json') {
       json(res, { beep: 'boop' })
     } else if (req.url === '/redirect') {
       redirect(req, res, 'https://example.com/')
@@ -57,6 +59,12 @@ let address
 test('setup', async t => {
   await promisify(server.listen.bind(server))()
   address = `http://localhost:${server.address().port}`
+})
+
+test('status', async t => {
+  const res = await fetch(`${address}/status`)
+  const text = await res.text()
+  assert.deepStrictEqual(text, 'Not Found')
 })
 
 test('json', async t => {

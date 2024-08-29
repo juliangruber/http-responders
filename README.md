@@ -51,7 +51,7 @@ $ npm install http-responders
 
 ### .json(res, json)
 
-### .redirect(req, res, location)
+### .redirect(req, res, location[, code = 302])
 
 ### await .stream(res, stream)
 

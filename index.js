@@ -12,8 +12,8 @@ export const json = (res, json) => {
   res.end(JSON.stringify(json))
 }
 
-export const redirect = (req, res, location) => {
-  res.statusCode = 302
+export const redirect = (req, res, location, status = 302) => {
+  res.statusCode = status
   res.setHeader('location', location)
   const body = req.method === 'HEAD' ? '' : `-> ${location}`
   res.end(body)

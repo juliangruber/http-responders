@@ -17,6 +17,8 @@ const server = http.createServer(async (req, res) => {
       json(res, { beep: 'boop' })
     } else if (req.url === '/redirect') {
       redirect(req, res, 'https://example.com/')
+    } else if (req.url === '/redirect-301') {
+      redirect(req, res, 'https://example.com/', 301)
     } else if (req.url === '/stream') {
       await stream(res, fs.createReadStream(fileURLToPath(import.meta.url)))
     } else if (req.url === '/stream/error') {
@@ -80,6 +82,7 @@ test('redirect', async t => {
       redirect: 'manual'
     })
     assert.strictEqual(res.headers.get('Location'), 'https://example.com/')
+    assert.strictEqual(res.status, 302)
     const text = await res.text()
     assert.strictEqual(text, '-> https://example.com/')
   })
@@ -90,8 +93,19 @@ test('redirect', async t => {
       redirect: 'manual'
     })
     assert.strictEqual(res.headers.get('Location'), 'https://example.com/')
+    assert.strictEqual(res.status, 302)
     const text = await res.text()
     assert.strictEqual(text, '')
+  })
+
+  await t.test('301', async t => {
+    const res = await fetch(`${address}/redirect-301`, {
+      redirect: 'manual'
+    })
+    assert.strictEqual(res.headers.get('Location'), 'https://example.com/')
+    assert.strictEqual(res.status, 301)
+    const text = await res.text()
+    assert.strictEqual(text, '-> https://example.com/')
   })
 })
 
